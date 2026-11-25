@@ -98,6 +98,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.masum.cipher.core.data.local.pref.AccentColor
@@ -907,7 +908,7 @@ Column(modifier = Modifier.fillMaxWidth()) {
                 )
                 var dragIndex by remember { mutableFloatStateOf(-1f) }
                 val savedIndex = fontSteps.indices.minByOrNull { kotlin.math.abs(fontSteps[it] - state.fontScale) } ?: 1
-                val shownIndex = if (dragIndex >= 0f) dragIndex.toInt() else savedIndex
+                val shownIndex = if (dragIndex >= 0f) dragIndex.roundToInt() else savedIndex
                 val previewScale by animateFloatAsState(
                     targetValue = fontSteps[shownIndex],
                     animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow),
@@ -969,14 +970,14 @@ Column(modifier = Modifier.fillMaxWidth()) {
                         Slider(
                             value = if (dragIndex >= 0f) dragIndex else savedIndex.toFloat(),
                             onValueChange = { v ->
-                                val snapped = v.toInt().coerceIn(0, fontSteps.lastIndex).toFloat()
+                                val snapped = v.roundToInt().coerceIn(0, fontSteps.lastIndex).toFloat()
                                 if (snapped != dragIndex) {
                                     if (dragIndex >= 0f) view.performVibrate(state.isHapticsEnabled, isLongPress = false)
                                     dragIndex = snapped
                                 }
                             },
                             onValueChangeFinished = {
-                                val idx = dragIndex.toInt()
+                                val idx = dragIndex.roundToInt()
                                 dragIndex = -1f
                                 if (idx in fontSteps.indices && idx != savedIndex) {
                                     viewModel.handleIntent(SettingsContract.Intent.UpdateFontScale(fontSteps[idx]))
