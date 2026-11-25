@@ -810,4 +810,10 @@
     <string name="pro_migration_plan_annual">Anual</string>
     <string name="pro_migration_plan_monthly">Mensual</string>
     <string name="pro_action_restore_purchases">Restaurar compras</string>
+    <string name="onboarding_capture_demo_just_now">Ahora mismo</string>
+    <string name="onboarding_capture_demo_understood">Reconocido</string>
+    <string name="onboarding_capture_demo_logged">Registrado</string>
+    <string name="onboarding_rules_demo_uncategorized">Sin categoría</string>
+    <string name="onboarding_rules_demo_organized">%1$d de %2$d organizadas</string>
+    <string name="onboarding_rules_demo_rule_saved">Regla guardada · %1$s → %2$s</string>
 </resources>

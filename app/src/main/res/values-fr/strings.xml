@@ -807,4 +807,10 @@
     <string name="pro_migration_plan_annual">Annuel</string>
     <string name="pro_migration_plan_monthly">Mensuel</string>
     <string name="pro_action_restore_purchases">Restaurer les achats</string>
+    <string name="onboarding_capture_demo_just_now">À l\'instant</string>
+    <string name="onboarding_capture_demo_understood">Reconnu</string>
+    <string name="onboarding_capture_demo_logged">Enregistré</string>
+    <string name="onboarding_rules_demo_uncategorized">Non catégorisé</string>
+    <string name="onboarding_rules_demo_organized">%1$d sur %2$d classées</string>
+    <string name="onboarding_rules_demo_rule_saved">Règle enregistrée · %1$s → %2$s</string>
 </resources>

@@ -816,4 +816,10 @@
     <string name="pro_migration_plan_annual">वार्षिक</string>
     <string name="pro_migration_plan_monthly">मासिक</string>
     <string name="pro_action_restore_purchases">खरीदारी पुनर्स्थापित करें</string>
+    <string name="onboarding_capture_demo_just_now">अभी-अभी</string>
+    <string name="onboarding_capture_demo_understood">समझ लिया गया</string>
+    <string name="onboarding_capture_demo_logged">दर्ज हो गया</string>
+    <string name="onboarding_rules_demo_uncategorized">अवर्गीकृत</string>
+    <string name="onboarding_rules_demo_organized">%2$d में से %1$d व्यवस्थित</string>
+    <string name="onboarding_rules_demo_rule_saved">नियम सहेजा गया · %1$s → %2$s</string>
 </resources>

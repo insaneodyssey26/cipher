@@ -817,4 +817,10 @@
     <string name="pro_migration_plan_annual">বার্ষিক</string>
     <string name="pro_migration_plan_monthly">মাসিক</string>
     <string name="pro_action_restore_purchases">ক্রয় পুনরুদ্ধার করুন</string>
+    <string name="onboarding_capture_demo_just_now">এইমাত্র</string>
+    <string name="onboarding_capture_demo_understood">বোঝা হয়েছে</string>
+    <string name="onboarding_capture_demo_logged">লগ হয়েছে</string>
+    <string name="onboarding_rules_demo_uncategorized">শ্রেণিবিহীন</string>
+    <string name="onboarding_rules_demo_organized">%2$d টির মধ্যে %1$d টি সাজানো হয়েছে</string>
+    <string name="onboarding_rules_demo_rule_saved">নিয়ম সংরক্ষিত · %1$s → %2$s</string>
 </resources>

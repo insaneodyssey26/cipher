@@ -807,4 +807,10 @@
     <string name="pro_migration_plan_annual">年額プラン</string>
     <string name="pro_migration_plan_monthly">月額プラン</string>
     <string name="pro_action_restore_purchases">購入を復元</string>
+    <string name="onboarding_capture_demo_just_now">たった今</string>
+    <string name="onboarding_capture_demo_understood">認識しました</string>
+    <string name="onboarding_capture_demo_logged">記録済み</string>
+    <string name="onboarding_rules_demo_uncategorized">未分類</string>
+    <string name="onboarding_rules_demo_organized">%2$d件中%1$d件を整理済み</string>
+    <string name="onboarding_rules_demo_rule_saved">ルールを保存 · %1$s → %2$s</string>
 </resources>
