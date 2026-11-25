@@ -823,4 +823,9 @@
     <string name="onboarding_rules_demo_uncategorized">শ্রেণিবিহীন</string>
     <string name="onboarding_rules_demo_organized">%2$d টির মধ্যে %1$d টি সাজানো হয়েছে</string>
     <string name="onboarding_rules_demo_rule_saved">নিয়ম সংরক্ষিত · %1$s → %2$s</string>
+    <string name="insights_arrange_title">সেকশন সাজান</string>
+    <string name="insights_arrange_subtitle">হ্যান্ডেল টেনে আনুন বা তীর ব্যবহার করুন। আপনার ক্রম নিজে থেকেই সংরক্ষিত হয়।</string>
+    <string name="insights_arrange_reset">ডিফল্টে ফিরুন</string>
+    <string name="insights_arrange_move_up">%1$s উপরে সরান</string>
+    <string name="insights_arrange_move_down">%1$s নিচে সরান</string>
 </resources>

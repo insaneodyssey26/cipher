@@ -909,4 +909,9 @@
     <string name="onboarding_rules_demo_uncategorized">Uncategorized</string>
     <string name="onboarding_rules_demo_organized">%1$d of %2$d organized</string>
     <string name="onboarding_rules_demo_rule_saved">Rule saved · %1$s → %2$s</string>
+    <string name="insights_arrange_title">Arrange sections</string>
+    <string name="insights_arrange_subtitle">Drag the handle or use the arrows. Your order is saved automatically.</string>
+    <string name="insights_arrange_reset">Reset to default</string>
+    <string name="insights_arrange_move_up">Move %1$s up</string>
+    <string name="insights_arrange_move_down">Move %1$s down</string>
 </resources>

@@ -60,6 +60,8 @@ data class BackupData(
     val categoryBudgets: Map<String, Double> = emptyMap(),
     val trackedApps: Set<String> = emptySet(),
     val ignoredSubscriptions: Set<String> = emptySet(),
+    val insightsSpendingOrder: List<String>? = null,
+    val insightsHabitsOrder: List<String>? = null,
     val currencyCode: String? = null,
     val currencySymbol: String? = null,
     val theme: String? = null,
@@ -131,6 +133,8 @@ class BackupRepository @Inject constructor(
                 categoryBudgets = settings.categoryBudgets,
                 trackedApps = settings.trackedApps,
                 ignoredSubscriptions = settings.ignoredSubscriptions,
+                insightsSpendingOrder = settings.insightsSpendingOrder.takeIf { it.isNotEmpty() },
+                insightsHabitsOrder = settings.insightsHabitsOrder.takeIf { it.isNotEmpty() },
                 currencyCode = settings.currencyCode,
                 currencySymbol = settings.currencySymbol,
                 theme = settings.theme.name,
@@ -231,6 +235,12 @@ class BackupRepository @Inject constructor(
                 }
                 if (data.ignoredSubscriptions.isNotEmpty()) {
                     userPreferences.setIgnoredSubscriptions(data.ignoredSubscriptions)
+                }
+                data.insightsSpendingOrder?.takeIf { it.isNotEmpty() }?.let {
+                    userPreferences.setInsightsSectionOrder(com.masum.cipher.core.domain.model.InsightsTab.SPENDING, it)
+                }
+                data.insightsHabitsOrder?.takeIf { it.isNotEmpty() }?.let {
+                    userPreferences.setInsightsSectionOrder(com.masum.cipher.core.domain.model.InsightsTab.HABITS, it)
                 }
                 if (!data.currencyCode.isNullOrBlank() && !data.currencySymbol.isNullOrBlank()) {
                     userPreferences.setCurrency(data.currencyCode, data.currencySymbol)

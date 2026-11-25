@@ -813,4 +813,9 @@
     <string name="onboarding_rules_demo_uncategorized">未分類</string>
     <string name="onboarding_rules_demo_organized">%2$d件中%1$d件を整理済み</string>
     <string name="onboarding_rules_demo_rule_saved">ルールを保存 · %1$s → %2$s</string>
+    <string name="insights_arrange_title">セクションを並べ替え</string>
+    <string name="insights_arrange_subtitle">ハンドルをドラッグするか矢印を使ってください。順序は自動的に保存されます。</string>
+    <string name="insights_arrange_reset">初期設定に戻す</string>
+    <string name="insights_arrange_move_up">%1$sを上へ移動</string>
+    <string name="insights_arrange_move_down">%1$sを下へ移動</string>
 </resources>

@@ -20,6 +20,9 @@ import javax.inject.Singleton
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_settings")
 
+private const val CACHED_INSIGHTS_SPENDING_ORDER = "cached_insights_spending_order"
+private const val CACHED_INSIGHTS_HABITS_ORDER = "cached_insights_habits_order"
+
 @Singleton
 class UserPreferences @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -223,6 +226,8 @@ class UserPreferences @Inject constructor(
             lastStopTime = 0L,
             monthlyBudget = 0.0,
             hasCompletedOnboarding = isCachedOnboardingCompleted(),
+            insightsSpendingOrder = decodeSectionOrder(syncPrefs.getString(CACHED_INSIGHTS_SPENDING_ORDER, null)),
+            insightsHabitsOrder = decodeSectionOrder(syncPrefs.getString(CACHED_INSIGHTS_HABITS_ORDER, null)),
             lastSeenWhatsNewVersionCode = getCachedLastSeenWhatsNewVersionCode(),
             accentColor = getCachedAccentColor(),
             fontScale = getCachedFontScale(),
@@ -274,6 +279,8 @@ class UserPreferences @Inject constructor(
         val LAST_NOTIFIED_UPDATE_VERSION_CODE = intPreferencesKey("last_notified_update_version_code")
         val IGNORED_SUBSCRIPTIONS = stringSetPreferencesKey("ignored_subscriptions")
         val CATEGORY_BUDGETS = stringPreferencesKey("category_budgets")
+        val INSIGHTS_SPENDING_ORDER = stringPreferencesKey("insights_spending_order")
+        val INSIGHTS_HABITS_ORDER = stringPreferencesKey("insights_habits_order")
         val IS_DYNAMIC_BUDGET_ENABLED = booleanPreferencesKey("is_dynamic_budget_enabled")
         val NAVBAR_COMPRESSED = booleanPreferencesKey("navbar_compressed")
         val CUSTOM_CURRENCIES = stringPreferencesKey("custom_currencies")
@@ -325,6 +332,8 @@ class UserPreferences @Inject constructor(
             .putBoolean("cached_navbar_compressed", isNavCompressed)
             .putString("cached_app_theme", parsedTheme.name)
             .putInt("cached_last_seen_whats_new_version_code", resolvedLastSeenVersion)
+            .putString(CACHED_INSIGHTS_SPENDING_ORDER, preferences[Keys.INSIGHTS_SPENDING_ORDER])
+            .putString(CACHED_INSIGHTS_HABITS_ORDER, preferences[Keys.INSIGHTS_HABITS_ORDER])
             .apply()
 
         UserSettings(
@@ -370,6 +379,8 @@ class UserPreferences @Inject constructor(
             notifyDuplicates = preferences[Keys.NOTIFY_DUPLICATES] ?: true,
             lastNotifiedUpdateVersionCode = preferences[Keys.LAST_NOTIFIED_UPDATE_VERSION_CODE] ?: 0,
             ignoredSubscriptions = preferences[Keys.IGNORED_SUBSCRIPTIONS] ?: emptySet(),
+            insightsSpendingOrder = decodeSectionOrder(preferences[Keys.INSIGHTS_SPENDING_ORDER]),
+            insightsHabitsOrder = decodeSectionOrder(preferences[Keys.INSIGHTS_HABITS_ORDER]),
             categoryBudgets = preferences[Keys.CATEGORY_BUDGETS]?.let { jsonStr ->
                 try {
                     val json = org.json.JSONObject(jsonStr)
@@ -649,6 +660,30 @@ class UserPreferences @Inject constructor(
             preferences[Keys.CATEGORY_BUDGETS] = json.toString()
         }
     }
+
+    suspend fun setInsightsSectionOrder(tab: com.masum.cipher.core.domain.model.InsightsTab, ids: List<String>) {
+        val key = when (tab) {
+            com.masum.cipher.core.domain.model.InsightsTab.SPENDING -> Keys.INSIGHTS_SPENDING_ORDER
+            com.masum.cipher.core.domain.model.InsightsTab.HABITS -> Keys.INSIGHTS_HABITS_ORDER
+        }
+        val encoded = ids.takeIf { it.isNotEmpty() }?.joinToString(",")
+        syncPrefs.edit().putString(cachedInsightsOrderKey(tab), encoded).apply()
+        context.dataStore.edit { prefs ->
+            if (encoded == null) {
+                prefs.remove(key)
+            } else {
+                prefs[key] = encoded
+            }
+        }
+    }
+
+    private fun cachedInsightsOrderKey(tab: com.masum.cipher.core.domain.model.InsightsTab): String = when (tab) {
+        com.masum.cipher.core.domain.model.InsightsTab.SPENDING -> CACHED_INSIGHTS_SPENDING_ORDER
+        com.masum.cipher.core.domain.model.InsightsTab.HABITS -> CACHED_INSIGHTS_HABITS_ORDER
+    }
+
+    private fun decodeSectionOrder(raw: String?): List<String> =
+        raw?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
 
     suspend fun setIgnoredSubscriptions(ignored: Set<String>) {
         context.dataStore.edit { prefs ->
@@ -948,6 +983,8 @@ data class UserSettings(
     val notifyDuplicates: Boolean = true,
     val lastNotifiedUpdateVersionCode: Int = 0,
     val ignoredSubscriptions: Set<String> = emptySet(),
+    val insightsSpendingOrder: List<String> = emptyList(),
+    val insightsHabitsOrder: List<String> = emptyList(),
     val categoryBudgets: Map<String, Double> = emptyMap(),
     val customCurrencies: List<com.masum.cipher.core.domain.model.AppCurrency> = emptyList(),
     val isDynamicBudgetEnabled: Boolean = false,

@@ -822,4 +822,9 @@
     <string name="onboarding_rules_demo_uncategorized">अवर्गीकृत</string>
     <string name="onboarding_rules_demo_organized">%2$d में से %1$d व्यवस्थित</string>
     <string name="onboarding_rules_demo_rule_saved">नियम सहेजा गया · %1$s → %2$s</string>
+    <string name="insights_arrange_title">सेक्शन व्यवस्थित करें</string>
+    <string name="insights_arrange_subtitle">हैंडल को खींचें या तीर का उपयोग करें। आपका क्रम अपने आप सहेजा जाता है।</string>
+    <string name="insights_arrange_reset">डिफ़ॉल्ट पर रीसेट करें</string>
+    <string name="insights_arrange_move_up">%1$s को ऊपर ले जाएँ</string>
+    <string name="insights_arrange_move_down">%1$s को नीचे ले जाएँ</string>
 </resources>

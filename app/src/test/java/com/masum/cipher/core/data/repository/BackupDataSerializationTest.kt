@@ -277,4 +277,39 @@ class BackupDataSerializationTest {
         assertTrue(!encoded.contains("lastRemindedAt"))
         assertTrue(!encoded.contains("reminderCount"))
     }
+
+    @Test
+    fun legacyBackupWithoutInsightsOrderRestoresWithNullOrders() {
+        val legacyJson = """{ "transactions": [] }"""
+
+        val restored = json.decodeFromString(BackupData.serializer(), legacyJson)
+
+        assertEquals(null, restored.insightsSpendingOrder)
+        assertEquals(null, restored.insightsHabitsOrder)
+    }
+
+    @Test
+    fun insightsSectionOrderSurvivesABackupRoundTrip() {
+        val data = BackupData(
+            transactions = emptyList(),
+            insightsSpendingOrder = listOf("net_worth", "budget", "cash_flow"),
+            insightsHabitsOrder = listOf("peak_hours", "categories", "activity_calendar")
+        )
+
+        val restored = json.decodeFromString(
+            BackupData.serializer(),
+            json.encodeToString(BackupData.serializer(), data)
+        )
+
+        assertEquals(listOf("net_worth", "budget", "cash_flow"), restored.insightsSpendingOrder)
+        assertEquals(listOf("peak_hours", "categories", "activity_calendar"), restored.insightsHabitsOrder)
+    }
+
+    @Test
+    fun aDefaultLayoutAddsNothingToTheBackupJson() {
+        val encoded = json.encodeToString(BackupData.serializer(), BackupData(transactions = emptyList()))
+
+        assertTrue(!encoded.contains("insightsSpendingOrder"))
+        assertTrue(!encoded.contains("insightsHabitsOrder"))
+    }
 }

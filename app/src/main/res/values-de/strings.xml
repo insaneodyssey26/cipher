@@ -815,4 +815,9 @@
     <string name="onboarding_rules_demo_uncategorized">Nicht kategorisiert</string>
     <string name="onboarding_rules_demo_organized">%1$d von %2$d sortiert</string>
     <string name="onboarding_rules_demo_rule_saved">Regel gespeichert · %1$s → %2$s</string>
+    <string name="insights_arrange_title">Bereiche anordnen</string>
+    <string name="insights_arrange_subtitle">Ziehe den Griff oder nutze die Pfeile. Deine Reihenfolge wird automatisch gespeichert.</string>
+    <string name="insights_arrange_reset">Auf Standard zurücksetzen</string>
+    <string name="insights_arrange_move_up">%1$s nach oben</string>
+    <string name="insights_arrange_move_down">%1$s nach unten</string>
 </resources>

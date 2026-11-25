@@ -816,4 +816,9 @@
     <string name="onboarding_rules_demo_uncategorized">Sin categoría</string>
     <string name="onboarding_rules_demo_organized">%1$d de %2$d organizadas</string>
     <string name="onboarding_rules_demo_rule_saved">Regla guardada · %1$s → %2$s</string>
+    <string name="insights_arrange_title">Ordenar secciones</string>
+    <string name="insights_arrange_subtitle">Arrastra el control o usa las flechas. Tu orden se guarda automáticamente.</string>
+    <string name="insights_arrange_reset">Restablecer</string>
+    <string name="insights_arrange_move_up">Subir %1$s</string>
+    <string name="insights_arrange_move_down">Bajar %1$s</string>
 </resources>

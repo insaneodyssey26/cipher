@@ -818,4 +818,9 @@
     <string name="onboarding_rules_demo_uncategorized">Bez kategorii</string>
     <string name="onboarding_rules_demo_organized">%1$d z %2$d uporządkowano</string>
     <string name="onboarding_rules_demo_rule_saved">Reguła zapisana · %1$s → %2$s</string>
+    <string name="insights_arrange_title">Ułóż sekcje</string>
+    <string name="insights_arrange_subtitle">Przeciągnij uchwyt lub użyj strzałek. Kolejność zapisuje się automatycznie.</string>
+    <string name="insights_arrange_reset">Przywróć domyślne</string>
+    <string name="insights_arrange_move_up">Przesuń %1$s w górę</string>
+    <string name="insights_arrange_move_down">Przesuń %1$s w dół</string>
 </resources>

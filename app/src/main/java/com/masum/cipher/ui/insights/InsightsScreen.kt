@@ -25,6 +25,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import com.masum.cipher.core.domain.model.InsightsLayout
+import com.masum.cipher.core.domain.model.InsightsSection
+import com.masum.cipher.core.domain.model.InsightsTab
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -77,6 +84,7 @@ import com.masum.cipher.ui.dashboard.DashboardContract
 import com.masum.cipher.ui.theme.Lato
 import com.masum.cipher.ui.theme.Typography
 import compose.icons.LucideIcons
+import compose.icons.lucideicons.ArrowUpDown
 import compose.icons.lucideicons.Calendar
 import compose.icons.lucideicons.ChevronLeft
 import compose.icons.lucideicons.ChevronRight
@@ -119,6 +127,13 @@ fun InsightsScreen(
     var selectedCategoryForDetail by remember { androidx.compose.runtime.mutableStateOf<DashboardContract.CategoryData?>(null) }
     var editingTransaction by remember { androidx.compose.runtime.mutableStateOf<com.masum.cipher.core.data.local.entity.TransactionEntity?>(null) }
     val monthlyBudget = settings?.monthlyBudget ?: 0.0
+    var arrangeTab by remember { androidx.compose.runtime.mutableStateOf<InsightsTab?>(null) }
+    val spendingOrder = remember(settings?.insightsSpendingOrder) {
+        InsightsLayout.resolve(InsightsTab.SPENDING, settings?.insightsSpendingOrder.orEmpty())
+    }
+    val habitsOrder = remember(settings?.insightsHabitsOrder) {
+        InsightsLayout.resolve(InsightsTab.HABITS, settings?.insightsHabitsOrder.orEmpty())
+    }
     val coroutineScope = rememberCoroutineScope()
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -201,6 +216,23 @@ fun InsightsScreen(
         )
     }
 
+    arrangeTab?.let { tab ->
+        InsightsArrangeSheet(
+            tab = tab,
+            savedOrder = if (tab == InsightsTab.SPENDING) spendingOrder else habitsOrder,
+            isHapticsEnabled = isHapticsEnabled,
+            onOrderChange = { newOrder ->
+                coroutineScope.launch {
+                    userPreferences.setInsightsSectionOrder(
+                        tab,
+                        if (InsightsLayout.isDefault(tab, newOrder)) emptyList() else InsightsLayout.toStorage(newOrder)
+                    )
+                }
+            },
+            onDismiss = { arrangeTab = null }
+        )
+    }
+
     val pagerState = rememberPagerState(pageCount = { 3 })
     val tabs = listOf(
         stringResource(R.string.tab_spending),
@@ -229,6 +261,27 @@ fun InsightsScreen(
                         },
                         isHapticsEnabled = isHapticsEnabled
                     )
+                },
+                actions = {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = selectedTabIndex <= 1,
+                        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.scaleIn(initialScale = 0.8f),
+                        exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.scaleOut(targetScale = 0.8f)
+                    ) {
+                        androidx.compose.material3.IconButton(
+                            onClick = {
+                                view.performVibrate(isHapticsEnabled, isLongPress = false)
+                                arrangeTab = if (selectedTabIndex == 0) InsightsTab.SPENDING else InsightsTab.HABITS
+                            }
+                        ) {
+                            androidx.compose.material3.Icon(
+                                imageVector = compose.icons.LucideIcons.ArrowUpDown,
+                                contentDescription = stringResource(R.string.insights_arrange_title),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -310,140 +363,152 @@ fun InsightsScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(top = 4.dp, bottom = 140.dp)
                         ) {
-                            item {
-                                InsightHero(state = state)
-                            }
-
-                            item {
-                                val monthStart = remember { com.masum.cipher.core.util.DateTimeUtils.currentMonthStart() }
-                                val rootAccountId = remember(state.accounts) {
-                                    state.accounts.minByOrNull { it.entity.createdAt }?.id ?: state.accounts.firstOrNull()?.id ?: 1L
-                                }
-
-                                val budgetPages = remember(state.accounts, state.allTransactions, state.monthlySummary, monthlyBudget) {
-                                    val allPage = InsightBudgetPage(
-                                        accountId = null,
-                                        name = "All Accounts",
-                                        spent = state.monthlySummary.expense,
-                                        income = state.monthlySummary.income,
-                                        colorHex = 0xFF4F46E5L
-                                    )
-                                    val accountPages = state.accounts.map { acc ->
-                                        val accTxs = state.allTransactions.filter {
-                                            it.timestamp >= monthStart && (it.accountId == acc.id || (it.accountId == null && acc.id == rootAccountId))
+                            itemsIndexed(items = spendingOrder, key = { _, section -> section.storageId }) { index, section ->
+                                Column(modifier = Modifier.animateItem()) {
+                                    when (section) {
+                                        InsightsSection.OVERVIEW -> {
+                                            if (index > 0) SectionDivider()
+                                            InsightHero(
+                                                state = state,
+                                                onLongPress = { arrangeTab = InsightsTab.SPENDING }
+                                            )
                                         }
-                                        val accSpent = accTxs.filter { !it.isIncome }.sumOf { it.amount }
-                                        val accIncome = accTxs.filter { it.isIncome }.sumOf { it.amount }
-                                        InsightBudgetPage(
-                                            accountId = acc.id,
-                                            name = acc.name,
-                                            spent = accSpent,
-                                            income = accIncome,
-                                            colorHex = acc.colorHex
-                                        )
-                                    }
-                                    listOf(allPage) + accountPages
-                                }
 
-                                val budgetPagerState = rememberPagerState(pageCount = { budgetPages.size })
+                                        InsightsSection.BUDGET -> {
+                                            val monthStart = remember { com.masum.cipher.core.util.DateTimeUtils.currentMonthStart() }
+                                            val rootAccountId = remember(state.accounts) {
+                                                state.accounts.minByOrNull { it.entity.createdAt }?.id ?: state.accounts.firstOrNull()?.id ?: 1L
+                                            }
 
-                                SectionLabel(stringResource(R.string.dashboard_monthly_budget).uppercase())
-
-                                if (budgetPages.size > 1) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 24.dp)
-                                            .padding(bottom = 14.dp)
-                                            .horizontalScroll(rememberScrollState()),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        budgetPages.forEachIndexed { index, pageData ->
-                                            val isSelected = budgetPagerState.currentPage == index
-                                            val pageColor = Color(pageData.colorHex)
-                                            Box(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(50))
-                                                    .background(
-                                                        if (isSelected) pageColor.copy(alpha = 0.18f)
-                                                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
-                                                    )
-                                                    .clickable {
-                                                        view.performVibrate(isHapticsEnabled, isLongPress = false)
-                                                        coroutineScope.launch {
-                                                            budgetPagerState.animateScrollToPage(index)
-                                                        }
+                                            val budgetPages = remember(state.accounts, state.allTransactions, state.monthlySummary, monthlyBudget) {
+                                                val allPage = InsightBudgetPage(
+                                                    accountId = null,
+                                                    name = "All Accounts",
+                                                    spent = state.monthlySummary.expense,
+                                                    income = state.monthlySummary.income,
+                                                    colorHex = 0xFF4F46E5L
+                                                )
+                                                val accountPages = state.accounts.map { acc ->
+                                                    val accTxs = state.allTransactions.filter {
+                                                        it.timestamp >= monthStart && (it.accountId == acc.id || (it.accountId == null && acc.id == rootAccountId))
                                                     }
-                                                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                                            ) {
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                                ) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(6.dp)
-                                                            .clip(CircleShape)
-                                                            .background(pageColor)
-                                                    )
-                                                    Text(
-                                                        text = pageData.name,
-                                                        style = Typography.labelMedium.copy(
-                                                            fontFamily = Lato,
-                                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                            fontSize = 12.sp
-                                                        ),
-                                                        color = if (isSelected) pageColor else MaterialTheme.colorScheme.onSurface
+                                                    val accSpent = accTxs.filter { !it.isIncome }.sumOf { it.amount }
+                                                    val accIncome = accTxs.filter { it.isIncome }.sumOf { it.amount }
+                                                    InsightBudgetPage(
+                                                        accountId = acc.id,
+                                                        name = acc.name,
+                                                        spent = accSpent,
+                                                        income = accIncome,
+                                                        colorHex = acc.colorHex
                                                     )
                                                 }
+                                                listOf(allPage) + accountPages
+                                            }
+
+                                            val budgetPagerState = rememberPagerState(pageCount = { budgetPages.size })
+
+                                            SectionLabel(stringResource(R.string.dashboard_monthly_budget).uppercase(), withDivider = index > 0, onLongPress = { arrangeTab = InsightsTab.SPENDING })
+
+                                            if (budgetPages.size > 1) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 24.dp)
+                                                        .padding(bottom = 14.dp)
+                                                        .horizontalScroll(rememberScrollState()),
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                ) {
+                                                    budgetPages.forEachIndexed { index, pageData ->
+                                                        val isSelected = budgetPagerState.currentPage == index
+                                                        val pageColor = Color(pageData.colorHex)
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .clip(RoundedCornerShape(50))
+                                                                .background(
+                                                                    if (isSelected) pageColor.copy(alpha = 0.18f)
+                                                                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+                                                                )
+                                                                .clickable {
+                                                                    view.performVibrate(isHapticsEnabled, isLongPress = false)
+                                                                    coroutineScope.launch {
+                                                                        budgetPagerState.animateScrollToPage(index)
+                                                                    }
+                                                                }
+                                                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                                                        ) {
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                            ) {
+                                                                Box(
+                                                                    modifier = Modifier
+                                                                        .size(6.dp)
+                                                                        .clip(CircleShape)
+                                                                        .background(pageColor)
+                                                                )
+                                                                Text(
+                                                                    text = pageData.name,
+                                                                    style = Typography.labelMedium.copy(
+                                                                        fontFamily = Lato,
+                                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                                        fontSize = 12.sp
+                                                                    ),
+                                                                    color = if (isSelected) pageColor else MaterialTheme.colorScheme.onSurface
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            HorizontalPager(
+                                                state = budgetPagerState,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) { pageIdx ->
+                                                val pageData = budgetPages.getOrNull(pageIdx) ?: budgetPages.first()
+                                                com.masum.cipher.ui.components.BudgetHealthCard(
+                                                    spent = pageData.spent,
+                                                    budget = monthlyBudget,
+                                                    income = pageData.income,
+                                                    isDynamicBudget = settings?.isDynamicBudgetEnabled ?: false,
+                                                    currencySymbol = state.currencySymbol,
+                                                    targetAccountName = pageData.name,
+                                                    onEditBudgetClick = {
+                                                        dialogTargetAccountId = pageData.accountId
+                                                        showBudgetDialog = true
+                                                    },
+                                                    onToggleDynamicMode = { enabled ->
+                                                        viewModel.handleIntent(InsightsContract.Intent.SetDynamicBudget(enabled))
+                                                    },
+                                                    modifier = Modifier.padding(horizontal = 24.dp),
+                                                    isHapticsEnabled = isHapticsEnabled
+                                                )
                                             }
                                         }
+
+                                        InsightsSection.CASH_FLOW -> {
+                                            SectionLabel(stringResource(R.string.cash_flow_trend).uppercase(), withDivider = index > 0, onLongPress = { arrangeTab = InsightsTab.SPENDING })
+                                            SpendingTrendChart(
+                                                expensePoints = state.expenseTrendHistory,
+                                                incomePoints = state.incomeTrendHistory,
+                                                netFlowPoints = state.netFlowTrendHistory,
+                                                currencySymbol = state.currencySymbol,
+                                                isHapticsEnabled = isHapticsEnabled
+                                            )
+                                        }
+
+                                        InsightsSection.NET_WORTH -> {
+                                            SectionLabel(stringResource(R.string.insights_net_worth_title).uppercase(), withDivider = index > 0, onLongPress = { arrangeTab = InsightsTab.SPENDING })
+                                            NetWorthRow(
+                                                state = state,
+                                                onNavigateToAccounts = onNavigateToAccounts,
+                                                isHapticsEnabled = isHapticsEnabled
+                                            )
+                                        }
+
+                                        else -> Unit
                                     }
                                 }
-
-                                HorizontalPager(
-                                    state = budgetPagerState,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) { pageIdx ->
-                                    val pageData = budgetPages.getOrNull(pageIdx) ?: budgetPages.first()
-                                    com.masum.cipher.ui.components.BudgetHealthCard(
-                                        spent = pageData.spent,
-                                        budget = monthlyBudget,
-                                        income = pageData.income,
-                                        isDynamicBudget = settings?.isDynamicBudgetEnabled ?: false,
-                                        currencySymbol = state.currencySymbol,
-                                        targetAccountName = pageData.name,
-                                        onEditBudgetClick = {
-                                            dialogTargetAccountId = pageData.accountId
-                                            showBudgetDialog = true
-                                        },
-                                        onToggleDynamicMode = { enabled ->
-                                            viewModel.handleIntent(InsightsContract.Intent.SetDynamicBudget(enabled))
-                                        },
-                                        modifier = Modifier.padding(horizontal = 24.dp),
-                                        isHapticsEnabled = isHapticsEnabled
-                                    )
-                                }
-                            }
-
-                            item {
-                                SectionLabel(stringResource(R.string.cash_flow_trend).uppercase())
-                                SpendingTrendChart(
-                                    expensePoints = state.expenseTrendHistory,
-                                    incomePoints = state.incomeTrendHistory,
-                                    netFlowPoints = state.netFlowTrendHistory,
-                                    currencySymbol = state.currencySymbol,
-                                    isHapticsEnabled = isHapticsEnabled
-                                )
-                            }
-
-                            item {
-                                SectionLabel(stringResource(R.string.insights_net_worth_title).uppercase())
-                                NetWorthRow(
-                                    state = state,
-                                    onNavigateToAccounts = onNavigateToAccounts,
-                                    isHapticsEnabled = isHapticsEnabled
-                                )
                             }
                         }
                     }
@@ -452,76 +517,85 @@ fun InsightsScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(top = 4.dp, bottom = 140.dp)
                         ) {
-                            item {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 14.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    SectionTitle(stringResource(R.string.spending_by_category))
-                                    Text(
-                                        text = stringResource(R.string.view_hub),
-                                        style = androidx.compose.ui.text.TextStyle(
-                                            fontFamily = com.masum.cipher.ui.theme.DMSans,
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 12.sp
-                                        ),
-                                        color = MaterialTheme.colorScheme.primary,
-                                        maxLines = 1,
-                                        softWrap = false,
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(50))
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
-                                            .clickable {
-                                                view.performVibrate(isHapticsEnabled, isLongPress = false)
-                                                onNavigateToCategories()
+                            itemsIndexed(items = habitsOrder, key = { _, section -> section.storageId }) { index, section ->
+                                Column(modifier = Modifier.animateItem()) {
+                                    when (section) {
+                                        InsightsSection.CATEGORIES -> {
+                                            if (index > 0) SectionDivider()
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(start = 24.dp, end = 24.dp, top = if (index == 0) 8.dp else 18.dp, bottom = 14.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                SectionTitle(stringResource(R.string.spending_by_category), onLongPress = { arrangeTab = InsightsTab.HABITS })
+                                                Text(
+                                                    text = stringResource(R.string.view_hub),
+                                                    style = androidx.compose.ui.text.TextStyle(
+                                                        fontFamily = com.masum.cipher.ui.theme.DMSans,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontSize = 12.sp
+                                                    ),
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                    maxLines = 1,
+                                                    softWrap = false,
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(50))
+                                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                                                        .clickable {
+                                                            view.performVibrate(isHapticsEnabled, isLongPress = false)
+                                                            onNavigateToCategories()
+                                                        }
+                                                        .padding(horizontal = 14.dp, vertical = 7.dp)
+                                                )
                                             }
-                                            .padding(horizontal = 14.dp, vertical = 7.dp)
-                                    )
-                                }
-                                VaultCard(
-                                    flat = true,
-                                    modifier = Modifier.padding(horizontal = 24.dp),
-                                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    contentPadding = 0.dp
-                                ) {
-                                    CategoryAllocationDonut(
-                                        categories = state.categoryBreakdown,
-                                        categoryBudgets = settings?.categoryBudgets ?: emptyMap(),
-                                        customCategories = state.customCategories,
-                                        currencySymbol = state.currencySymbol,
-                                        onCategoryClick = { catData ->
-                                            view.performVibrate(isHapticsEnabled, isLongPress = false)
-                                            selectedCategoryForDetail = catData
+                                            VaultCard(
+                                                flat = true,
+                                                modifier = Modifier.padding(horizontal = 24.dp),
+                                                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                contentPadding = 0.dp
+                                            ) {
+                                                CategoryAllocationDonut(
+                                                    categories = state.categoryBreakdown,
+                                                    categoryBudgets = settings?.categoryBudgets ?: emptyMap(),
+                                                    customCategories = state.customCategories,
+                                                    currencySymbol = state.currencySymbol,
+                                                    onCategoryClick = { catData ->
+                                                        view.performVibrate(isHapticsEnabled, isLongPress = false)
+                                                        selectedCategoryForDetail = catData
+                                                    }
+                                                )
+                                            }
                                         }
-                                    )
-                                }
-                            }
 
-                            item {
-                                SectionLabel(stringResource(R.string.peak_spending_hours).uppercase())
-                                PeakHoursChart(hours = state.peakHours, currencySymbol = state.currencySymbol)
-                            }
-
-                            item {
-                                SectionLabel(stringResource(R.string.activity_calendar).uppercase())
-                                VaultCard(
-                                    flat = true,
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    contentPadding = 0.dp
-                                ) {
-                                    CalendarHeatmap(
-                                        data = state.calendarHeatmap,
-                                        selectedTimestamp = state.selectedDayTimestamp,
-                                        currencySymbol = state.currencySymbol,
-                                        onDayClick = { timestamp ->
-                                            view.performVibrate(isHapticsEnabled, isLongPress = true)
-                                            onNavigateToDayDetail(timestamp)
+                                        InsightsSection.PEAK_HOURS -> {
+                                            SectionLabel(stringResource(R.string.peak_spending_hours).uppercase(), withDivider = index > 0, onLongPress = { arrangeTab = InsightsTab.HABITS })
+                                            PeakHoursChart(hours = state.peakHours, currencySymbol = state.currencySymbol)
                                         }
-                                    )
+
+                                        InsightsSection.ACTIVITY_CALENDAR -> {
+                                            SectionLabel(stringResource(R.string.activity_calendar).uppercase(), withDivider = index > 0, onLongPress = { arrangeTab = InsightsTab.HABITS })
+                                            VaultCard(
+                                                flat = true,
+                                                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                                                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                contentPadding = 0.dp
+                                            ) {
+                                                CalendarHeatmap(
+                                                    data = state.calendarHeatmap,
+                                                    selectedTimestamp = state.selectedDayTimestamp,
+                                                    currencySymbol = state.currencySymbol,
+                                                    onDayClick = { timestamp ->
+                                                        view.performVibrate(isHapticsEnabled, isLongPress = true)
+                                                        onNavigateToDayDetail(timestamp)
+                                                    }
+                                                )
+                                            }
+                                        }
+
+                                        else -> Unit
+                                    }
                                 }
                             }
                         }
@@ -678,7 +752,7 @@ fun InsightsScreen(
 }
 
 @Composable
-private fun InsightHero(state: InsightsContract.State) {
+private fun InsightHero(state: InsightsContract.State, onLongPress: (() -> Unit)? = null) {
     val totalSpent = remember(state.categoryBreakdown) { state.categoryBreakdown.sumOf { it.amount } }
     val mostExpensiveCategory = state.categoryBreakdown.maxByOrNull { it.amount }
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -711,7 +785,7 @@ private fun InsightHero(state: InsightsContract.State) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SectionTitle(stringResource(R.string.overview))
+            SectionTitle(stringResource(R.string.overview), onLongPress = onLongPress)
             Text(
                 text = periodLabel,
                 style = androidx.compose.ui.text.TextStyle(fontFamily = dm, fontWeight = FontWeight.Medium, fontSize = 11.5.sp),
@@ -834,8 +908,15 @@ private fun InsightHero(state: InsightsContract.State) {
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+private fun SectionTitle(text: String, onLongPress: (() -> Unit)? = null) {
+    Row(
+        modifier = if (onLongPress != null) {
+            Modifier.pointerInput(onLongPress) { detectTapGestures(onLongPress = { onLongPress() }) }
+        } else {
+            Modifier
+        },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Box(
             modifier = Modifier
                 .size(width = 3.dp, height = 18.dp)
@@ -857,20 +938,29 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun SectionLabel(text: String, withDivider: Boolean = true) {
+private fun SectionDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(top = 28.dp)
+            .height(0.5.dp)
+            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+    )
+}
+
+@Composable
+private fun SectionLabel(
+    text: String,
+    withDivider: Boolean = true,
+    onLongPress: (() -> Unit)? = null
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         if (withDivider) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 28.dp)
-                    .height(0.5.dp)
-                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-            )
+            SectionDivider()
         }
         Box(modifier = Modifier.padding(start = 24.dp, top = if (withDivider) 18.dp else 2.dp, bottom = 10.dp)) {
-            SectionTitle(text)
+            SectionTitle(text, onLongPress)
         }
     }
 }
