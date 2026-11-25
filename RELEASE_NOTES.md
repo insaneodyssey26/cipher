@@ -1,5 +1,21 @@
 # Release Notes
 
+## [6.6.0]
+
+### New & Improved
+- **Rearrange Insights**: Move the sections on the Spending and Habits tabs into the order you like. Tap the arrows icon at the top or hold a section title, then drag a section or use the arrows. Your order is saved and included in backups.
+- **Custom Accent Color (Pro)**: Pro users can pick any color for the app. Use the sliders or type a hex code and check the preview before you apply it. It also colors your home screen widgets and is saved in backups.
+- **Easier Color Picking**: All accent colors now show at once, split into Free and Pro, so there is no more sideways scrolling.
+
+### Fixed
+- Subscription reminders no longer repeat every day. You get a reminder at most once every 3 days, up to 3 times, and swiping a notification away no longer brings it back the next day.
+- Log it and Skip now work in one tap when a subscription is several payments behind, and Log it adds only one transaction.
+- The text size slider no longer jumps to Compact when you tap Default.
+
+Under the hood: the database moves to version 15 to keep track of subscription reminders. Your data is kept.
+
+---
+
 ## [6.5.0]
 
 ### New & Improved

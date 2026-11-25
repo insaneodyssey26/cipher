@@ -407,6 +407,12 @@
     <string name="whats_new_header_title">Cipher Updates</string>
     <string name="whats_new_header_desc">Here is what changed across recent updates</string>
     <string name="whats_new_badge_latest">Latest</string>
+    <string name="whats_new_v660_arrange_title">Rearrange Insights</string>
+    <string name="whats_new_v660_arrange_desc">Put the sections on the Insights screen in the order you like. Tap the arrows icon at the top, or hold a section title.</string>
+    <string name="whats_new_v660_color_title">Custom Accent Color</string>
+    <string name="whats_new_v660_color_desc">Pro users can now pick any color for the app and see a preview before applying it.</string>
+    <string name="whats_new_v660_fixes_title">Fixes</string>
+    <string name="whats_new_v660_fixes_desc">Subscription reminders no longer repeat every day, Log it and Skip work in one tap for overdue subscriptions, and the text size slider picks the right step.</string>
     <string name="whats_new_v650_look_title">New Look</string>
     <string name="whats_new_v650_look_desc">Every screen has a cleaner, darker design with simpler cards and easier-to-read amounts.</string>
     <string name="whats_new_v650_textsize_title">Text Size</string>
