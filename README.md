@@ -393,6 +393,16 @@ There is zero telemetry, zero analytics trackers, zero advertising SDKs, and zer
 
 ---
 
+## Feedback & contributions
+
+Cipher is open source, but it is built and maintained by one person, and **I am not accepting pull requests right now**. Pull requests may be closed without review. You are always free to fork the project under the GPL-3.0 license.
+
+- **Bugs, crashes and ideas**: please [open an issue](../../issues). Describe what you did, what you expected and what happened, plus your Android version and device if it matters.
+- **Security problems**: report them privately from the **Security** tab, using **"Report a vulnerability"**. Please do not open a public issue. Details are in [SECURITY.md](SECURITY.md).
+- **Anything else**: email [skmasumali.dev@gmail.com](mailto:skmasumali.dev@gmail.com).
+
+---
+
 ## Release history
 
 See [RELEASE_NOTES.md](RELEASE_NOTES.md).
