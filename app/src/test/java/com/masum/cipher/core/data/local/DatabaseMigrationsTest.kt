@@ -7,7 +7,7 @@ import org.junit.Test
 class DatabaseMigrationsTest {
 
     @Test
-    fun `all migrations from 3 to 14 are defined continuously`() {
+    fun `all migrations from 3 to 15 are defined continuously`() {
         val migrations = listOf(
             AppDatabase.MIGRATION_3_4,
             AppDatabase.MIGRATION_4_5,
@@ -19,7 +19,8 @@ class DatabaseMigrationsTest {
             AppDatabase.MIGRATION_10_11,
             AppDatabase.MIGRATION_11_12,
             AppDatabase.MIGRATION_12_13,
-            AppDatabase.MIGRATION_13_14
+            AppDatabase.MIGRATION_13_14,
+            AppDatabase.MIGRATION_14_15
         )
 
         for (i in 0 until migrations.size) {

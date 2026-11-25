@@ -78,14 +78,43 @@ class SubscriptionUseCasesTest {
     }
 
     @Test
-    fun `approving a subscription advances the next expected date by one frequency interval`() = runBlocking {
+    fun `approving a subscription advances the next expected date by one interval when it was just due`() = runBlocking {
         val useCase = ApproveSubscriptionUseCase(subscriptionDao, transactionRepository, userPreferences)
-        val sub = subscription(nextExpectedDate = 1_000_000L, frequencyDays = 30)
+        val step = TimeUnit.DAYS.toMillis(30)
+        val dueDate = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(2)
+        val sub = subscription(nextExpectedDate = dueDate, frequencyDays = 30)
 
         useCase(sub)
 
-        val expectedNextDate = 1_000_000L + TimeUnit.DAYS.toMillis(30)
-        verify(subscriptionDao).update(argThat { nextExpectedDate == expectedNextDate })
+        verify(subscriptionDao).update(argThat { nextExpectedDate == dueDate + step })
+        Unit
+    }
+
+    @Test
+    fun `approving a long overdue subscription catches up to the next future date in one go`() = runBlocking {
+        val useCase = ApproveSubscriptionUseCase(subscriptionDao, transactionRepository, userPreferences)
+        val step = TimeUnit.DAYS.toMillis(30)
+        val now = System.currentTimeMillis()
+        val dueDate = now - TimeUnit.DAYS.toMillis(100)
+        val sub = subscription(nextExpectedDate = dueDate, frequencyDays = 30)
+
+        useCase(sub)
+
+        verify(subscriptionDao).update(argThat {
+            nextExpectedDate > now && nextExpectedDate - now <= step && (nextExpectedDate - dueDate) % step == 0L
+        })
+        verify(transactionRepository, org.mockito.kotlin.times(1)).insertTransaction(any())
+        Unit
+    }
+
+    @Test
+    fun `approving a subscription clears its reminder state`() = runBlocking {
+        val useCase = ApproveSubscriptionUseCase(subscriptionDao, transactionRepository, userPreferences)
+        val sub = subscription(nextExpectedDate = System.currentTimeMillis() - 1_000L).copy(lastRemindedAt = 5_000L, reminderCount = 3)
+
+        useCase(sub)
+
+        verify(subscriptionDao).update(argThat { lastRemindedAt == 0L && reminderCount == 0 })
         Unit
     }
 
@@ -94,13 +123,41 @@ class SubscriptionUseCasesTest {
     @Test
     fun `skipping a subscription advances the next expected date without creating a transaction`() = runBlocking {
         val useCase = SkipSubscriptionUseCase(subscriptionDao)
-        val sub = subscription(nextExpectedDate = 1_000_000L, frequencyDays = 7)
+        val step = TimeUnit.DAYS.toMillis(7)
+        val dueDate = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(5)
+        val sub = subscription(nextExpectedDate = dueDate, frequencyDays = 7)
 
         useCase(sub)
 
-        val expectedNextDate = 1_000_000L + TimeUnit.DAYS.toMillis(7)
-        verify(subscriptionDao).update(argThat { nextExpectedDate == expectedNextDate })
+        verify(subscriptionDao).update(argThat { nextExpectedDate == dueDate + step })
         verify(transactionRepository, never()).insertTransaction(any())
+        Unit
+    }
+
+    @Test
+    fun `skipping a long overdue subscription catches up to the next future date in one go`() = runBlocking {
+        val useCase = SkipSubscriptionUseCase(subscriptionDao)
+        val step = TimeUnit.DAYS.toMillis(7)
+        val now = System.currentTimeMillis()
+        val dueDate = now - TimeUnit.DAYS.toMillis(60)
+        val sub = subscription(nextExpectedDate = dueDate, frequencyDays = 7)
+
+        useCase(sub)
+
+        verify(subscriptionDao).update(argThat {
+            nextExpectedDate > now && nextExpectedDate - now <= step && (nextExpectedDate - dueDate) % step == 0L
+        })
+        Unit
+    }
+
+    @Test
+    fun `skipping a subscription clears its reminder state`() = runBlocking {
+        val useCase = SkipSubscriptionUseCase(subscriptionDao)
+        val sub = subscription(nextExpectedDate = System.currentTimeMillis() - 1_000L).copy(lastRemindedAt = 5_000L, reminderCount = 2)
+
+        useCase(sub)
+
+        verify(subscriptionDao).update(argThat { lastRemindedAt == 0L && reminderCount == 0 })
         Unit
     }
 
@@ -125,6 +182,18 @@ class SubscriptionUseCasesTest {
         useCase("netflix", 699.0, "ENTERTAINMENT", 30, 3_000_000L)
 
         verify(subscriptionDao).insert(argThat { id == 42L && amount == 699.0 })
+        Unit
+    }
+
+    @Test
+    fun `saving an edited subscription resets its reminder state`() = runBlocking {
+        val existing = subscription(id = 7L, merchant = "NETFLIX").copy(lastRemindedAt = 9_000L, reminderCount = 3)
+        whenever(subscriptionDao.getAllSubscriptions()).thenReturn(flowOf(listOf(existing)))
+        val useCase = SaveSubscriptionUseCase(subscriptionDao)
+
+        useCase("NETFLIX", 649.0, "ENTERTAINMENT", 30, 3_000_000L)
+
+        verify(subscriptionDao).insert(argThat { id == 7L && lastRemindedAt == 0L && reminderCount == 0 })
         Unit
     }
 

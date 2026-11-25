@@ -35,7 +35,7 @@ import com.masum.cipher.core.data.local.entity.TransactionSplitEntity
         DebtEntity::class,
         DebtRepaymentEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -126,6 +126,13 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_13_14 = object : androidx.room.migration.Migration(13, 14) {
             override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `debts` ADD COLUMN `transactionId` INTEGER DEFAULT NULL")
+            }
+        }
+
+        val MIGRATION_14_15 = object : androidx.room.migration.Migration(14, 15) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `subscriptions` ADD COLUMN `lastRemindedAt` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `subscriptions` ADD COLUMN `reminderCount` INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

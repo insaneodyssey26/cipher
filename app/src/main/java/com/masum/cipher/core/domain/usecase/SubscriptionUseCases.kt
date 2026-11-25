@@ -5,14 +5,10 @@ import com.masum.cipher.core.data.local.entity.SubscriptionEntity
 import com.masum.cipher.core.data.local.entity.TransactionEntity
 import com.masum.cipher.core.data.local.pref.UserPreferences
 import com.masum.cipher.core.data.repository.TransactionRepository
+import com.masum.cipher.core.domain.SubscriptionSchedule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
-private fun nextDueDate(subscription: SubscriptionEntity): Long {
-    return subscription.nextExpectedDate + TimeUnit.DAYS.toMillis(subscription.frequencyDays.toLong())
-}
 
 class ApproveSubscriptionUseCase @Inject constructor(
     private val subscriptionDao: SubscriptionDao,
@@ -20,18 +16,19 @@ class ApproveSubscriptionUseCase @Inject constructor(
     private val userPreferences: UserPreferences
 ) {
     suspend operator fun invoke(subscription: SubscriptionEntity) {
+        val now = System.currentTimeMillis()
         val newTransaction = TransactionEntity(
             merchant = subscription.merchant,
             amount = subscription.amount,
             currency = userPreferences.settingsFlow.first().currencyCode,
             rawSms = null,
             category = subscription.category,
-            timestamp = System.currentTimeMillis(),
+            timestamp = now,
             isIncome = false,
             note = "Approved subscription"
         )
         transactionRepository.insertTransaction(newTransaction)
-        subscriptionDao.update(subscription.copy(nextExpectedDate = nextDueDate(subscription)))
+        subscriptionDao.update(SubscriptionSchedule.resolved(subscription, now))
     }
 }
 
@@ -39,7 +36,7 @@ class SkipSubscriptionUseCase @Inject constructor(
     private val subscriptionDao: SubscriptionDao
 ) {
     suspend operator fun invoke(subscription: SubscriptionEntity) {
-        subscriptionDao.update(subscription.copy(nextExpectedDate = nextDueDate(subscription)))
+        subscriptionDao.update(SubscriptionSchedule.resolved(subscription, System.currentTimeMillis()))
     }
 }
 

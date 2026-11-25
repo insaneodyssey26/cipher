@@ -209,7 +209,7 @@ class BackupRepository @Inject constructor(
                     }
                     data.aliases.forEach { merchantAliasDao.insertAlias(it) }
                     data.rules.forEach { categoryRuleDao.insertRule(it) }
-                    data.subscriptions.forEach { subscriptionDao.insert(it) }
+                    data.subscriptions.forEach { subscriptionDao.insert(it.copy(lastRemindedAt = 0L, reminderCount = 0)) }
                     data.customCategories.forEach { customCategoryDao.insertCustomCategory(it) }
                     data.accounts.forEach { accountDao.insertAccount(it) }
                     data.goals.forEach { goalDao.insertGoal(it) }

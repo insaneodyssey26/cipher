@@ -401,71 +401,70 @@ class LocalNotificationManager @Inject constructor(
         }
     }
 
-    fun showSubscriptionPendingNotification(subscription: SubscriptionEntity) {
-        scope.launch {
-            val settings = userPreferences.settingsFlow.first()
-            if (!settings.notifySubscriptions) return@launch
+    suspend fun showSubscriptionPendingNotification(subscription: SubscriptionEntity): Boolean {
+        val settings = userPreferences.settingsFlow.first()
+        if (!settings.notifySubscriptions) return false
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-            ) return@launch
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) return false
 
-            val notificationId = (subscription.id + 5000).toInt()
+        val notificationId = (subscription.id + 5000).toInt()
 
-            val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-            val pendingIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-            val approveIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-                action = NotificationActionReceiver.ACTION_APPROVE_SUBSCRIPTION
-                putExtra(NotificationActionReceiver.EXTRA_SUBSCRIPTION_ID, subscription.id)
-                putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notificationId)
-            }
-            val approvePendingIntent = PendingIntent.getBroadcast(
-                context,
-                notificationId + 100,
-                approveIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val approveAction = NotificationCompat.Action.Builder(
-                com.masum.cipher.R.drawable.ic_notification,
-                "Log it",
-                approvePendingIntent
-            ).build()
-
-            val skipIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-                action = NotificationActionReceiver.ACTION_SKIP_SUBSCRIPTION
-                putExtra(NotificationActionReceiver.EXTRA_SUBSCRIPTION_ID, subscription.id)
-                putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notificationId)
-            }
-            val skipPendingIntent = PendingIntent.getBroadcast(
-                context,
-                notificationId + 200,
-                skipIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            val skipAction = NotificationCompat.Action.Builder(
-                com.masum.cipher.R.drawable.ic_notification,
-                "Skip",
-                skipPendingIntent
-            ).build()
-
-            val currencySymbol = settings.currencySymbol
-            val amountStr = com.masum.cipher.core.util.AppFormatters.formatCurrency(subscription.amount, currencySymbol, decimals = 0)
-            val builder = NotificationCompat.Builder(context, CHANNEL_SUBSCRIPTIONS)
-                .setSmallIcon(com.masum.cipher.R.drawable.ic_notification)
-                .setColor("#F59E0B".toColorInt())
-                .setContentTitle("Subscription Due")
-                .setContentText("$amountStr for ${subscription.merchant} is due today.")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
-                .addAction(approveAction)
-                .addAction(skipAction)
-                .setAutoCancel(true)
-
-            with(NotificationManagerCompat.from(context)) { notify(notificationId, builder.build()) }
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
+        val pendingIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        val approveIntent = Intent(context, NotificationActionReceiver::class.java).apply {
+            action = NotificationActionReceiver.ACTION_APPROVE_SUBSCRIPTION
+            putExtra(NotificationActionReceiver.EXTRA_SUBSCRIPTION_ID, subscription.id)
+            putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notificationId)
+        }
+        val approvePendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationId + 100,
+            approveIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val approveAction = NotificationCompat.Action.Builder(
+            com.masum.cipher.R.drawable.ic_notification,
+            "Log it",
+            approvePendingIntent
+        ).build()
+
+        val skipIntent = Intent(context, NotificationActionReceiver::class.java).apply {
+            action = NotificationActionReceiver.ACTION_SKIP_SUBSCRIPTION
+            putExtra(NotificationActionReceiver.EXTRA_SUBSCRIPTION_ID, subscription.id)
+            putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notificationId)
+        }
+        val skipPendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationId + 200,
+            skipIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val skipAction = NotificationCompat.Action.Builder(
+            com.masum.cipher.R.drawable.ic_notification,
+            "Skip",
+            skipPendingIntent
+        ).build()
+
+        val currencySymbol = settings.currencySymbol
+        val amountStr = com.masum.cipher.core.util.AppFormatters.formatCurrency(subscription.amount, currencySymbol, decimals = 0)
+        val builder = NotificationCompat.Builder(context, CHANNEL_SUBSCRIPTIONS)
+            .setSmallIcon(com.masum.cipher.R.drawable.ic_notification)
+            .setColor("#F59E0B".toColorInt())
+            .setContentTitle("Subscription Due")
+            .setContentText("$amountStr for ${subscription.merchant} is due today.")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .addAction(approveAction)
+            .addAction(skipAction)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(context)) { notify(notificationId, builder.build()) }
+        return true
     }
 
     fun showAppUpdateAvailableNotification(versionName: String? = null) {

@@ -236,4 +236,45 @@ class BackupDataSerializationTest {
         assertNotNull(restored.debts)
         assertNotNull(restored.debtRepayments)
     }
+
+    @Test
+    fun legacySubscriptionWithoutReminderFieldsRestoresWithZeroedReminderState() {
+        val legacyJson = """
+            {
+                "transactions": [],
+                "subscriptions": [
+                    {
+                        "id": 3,
+                        "merchant": "Netflix",
+                        "amount": 649.0,
+                        "category": "Entertainment",
+                        "frequencyDays": 30,
+                        "nextExpectedDate": 1750000000000
+                    }
+                ]
+            }
+        """.trimIndent()
+
+        val restored = json.decodeFromString(BackupData.serializer(), legacyJson)
+
+        assertEquals(1, restored.subscriptions.size)
+        assertEquals("Netflix", restored.subscriptions[0].merchant)
+        assertEquals(0L, restored.subscriptions[0].lastRemindedAt)
+        assertEquals(0, restored.subscriptions[0].reminderCount)
+    }
+
+    @Test
+    fun subscriptionBackupWithDefaultReminderStateStaysReadableByOlderVersions() {
+        val data = BackupData(
+            transactions = emptyList(),
+            subscriptions = listOf(
+                SubscriptionEntity(id = 1L, merchant = "Spotify", amount = 119.0, category = "Entertainment", frequencyDays = 30, nextExpectedDate = 1750000000000L)
+            )
+        )
+
+        val encoded = json.encodeToString(BackupData.serializer(), data)
+
+        assertTrue(!encoded.contains("lastRemindedAt"))
+        assertTrue(!encoded.contains("reminderCount"))
+    }
 }

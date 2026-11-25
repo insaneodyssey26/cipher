@@ -23,6 +23,9 @@ interface SubscriptionDao {
     @Update
     suspend fun update(subscription: SubscriptionEntity)
 
+    @Query("UPDATE subscriptions SET lastRemindedAt = :remindedAt, reminderCount = reminderCount + 1 WHERE id = :id")
+    suspend fun markReminded(id: Long, remindedAt: Long)
+
     @Delete
     suspend fun delete(subscription: SubscriptionEntity)
 
