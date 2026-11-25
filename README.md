@@ -6,21 +6,15 @@
 
 A local-first, privacy-focused personal finance app for Android. cipher reads your bank SMS alerts and app notifications, turning them into a clean, searchable transaction ledger — entirely on-device, with zero cloud dependency.
 
-<p align="left">
-  <a href="https://play.google.com/store/apps/details?id=com.masum.cipher">
-    <img alt="Get it on Google Play" height="80" src="docs/badges/google-play-badge.svg" />
-  </a>
-  <a href="https://github.com/insaneodyssey26/cipher/releases/latest">
-    <img alt="Get it on GitHub" height="80" src="docs/badges/github.svg" />
-  </a>
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.masum.cipher"><img alt="Get it on Google Play" height="80" src="docs/badges/google-play-badge.svg" /></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/insaneodyssey26/cipher/releases/latest"><img alt="Get it on GitHub" height="80" src="docs/badges/github.svg" /></a>
 </p>
-<p align="left">
-  <a href="https://www.producthunt.com/products/cipher-4/launches/cipher-5?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-cipher-5" target="_blank" rel="noopener noreferrer">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1220752&amp;theme=dark&amp;t=1792039109757">
-      <img alt="Cipher - Track your money privately, entirely on-device | Product Hunt" height="54" width="250" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1220752&amp;theme=light&amp;t=1792039095819">
-    </picture>
-  </a>
+<p align="center">
+  <a href="https://www.producthunt.com/products/cipher-4/launches/cipher-5?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-cipher-5" target="_blank" rel="noopener noreferrer"><picture><source media="(prefers-color-scheme: dark)" srcset="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1220752&amp;theme=dark&amp;t=1792039109757"><img alt="Cipher - Track your money privately, entirely on-device | Product Hunt" height="54" width="250" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1220752&amp;theme=light&amp;t=1792039095819"></picture></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://peerlist.io/insane_odyssey/project/cipher-offline-money-manager" target="_blank" rel="noopener noreferrer"><picture><source media="(prefers-color-scheme: dark)" srcset="https://peerlist.io/api/v1/projects/embed/PRJHEOGDANQDPGDJMFGO88J6E6GNPB?showUpvote=true&amp;theme=dark"><img alt="Cipher: Offline Money Manager | Peerlist" height="54" src="https://peerlist.io/api/v1/projects/embed/PRJHEOGDANQDPGDJMFGO88J6E6GNPB?showUpvote=true&amp;theme=light"></picture></a>
 </p>
 
 ---
