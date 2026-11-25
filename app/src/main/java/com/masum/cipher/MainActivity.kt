@@ -155,7 +155,8 @@ class MainActivity : AppCompatActivity() {
             }
             CipherTheme(
                 darkTheme = darkTheme,
-                accentColor = Color(userPreferences.getCachedAccentColor().colorValue),
+                accentColor = Color(userPreferences.getCachedAccentColorValue()),
+                adaptOnAccent = userPreferences.getCachedAccentColor() == com.masum.cipher.core.data.local.pref.AccentColor.CUSTOM,
                 fontScale = userPreferences.getCachedFontScale()
             ) {
                 DatabaseRecoveryScreen(
@@ -242,7 +243,8 @@ class MainActivity : AppCompatActivity() {
 
                 CipherTheme(
                     darkTheme = darkTheme,
-                    accentColor = Color(userSettings.accentColor.colorValue),
+                    accentColor = Color(userSettings.accentColorValue),
+                    adaptOnAccent = userSettings.accentColor == com.masum.cipher.core.data.local.pref.AccentColor.CUSTOM,
                     fontScale = userSettings.fontScale
                 ) {
                     val lifecycleOwner = LocalLifecycleOwner.current

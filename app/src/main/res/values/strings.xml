@@ -914,4 +914,17 @@
     <string name="insights_arrange_reset">Reset to default</string>
     <string name="insights_arrange_move_up">Move %1$s up</string>
     <string name="insights_arrange_move_down">Move %1$s down</string>
+    <string name="accent_group_free">Free</string>
+    <string name="accent_group_pro">Pro</string>
+    <string name="accent_custom_name">Custom</string>
+    <string name="accent_custom_title">Custom color</string>
+    <string name="accent_custom_hint">Pick any shade you like</string>
+    <string name="accent_custom_sheet_subtitle">Mix your own accent. It applies across the whole app.</string>
+    <string name="accent_custom_hue">Hue</string>
+    <string name="accent_custom_saturation">Saturation</string>
+    <string name="accent_custom_brightness">Brightness</string>
+    <string name="accent_custom_apply">Apply color</string>
+    <string name="accent_custom_low_contrast">This shade may be hard to read on the current theme.</string>
+    <string name="pro_gate_accent_custom_title">Custom Accent Color</string>
+    <string name="pro_gate_accent_custom_desc">Mix any shade with a precise color picker and hex code.</string>
 </resources>

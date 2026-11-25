@@ -828,4 +828,17 @@
     <string name="insights_arrange_reset">ডিফল্টে ফিরুন</string>
     <string name="insights_arrange_move_up">%1$s উপরে সরান</string>
     <string name="insights_arrange_move_down">%1$s নিচে সরান</string>
+    <string name="accent_group_free">বিনামূল্যে</string>
+    <string name="accent_group_pro">Pro</string>
+    <string name="accent_custom_name">কাস্টম</string>
+    <string name="accent_custom_title">কাস্টম রঙ</string>
+    <string name="accent_custom_hint">আপনার পছন্দের যেকোনো রঙ বেছে নিন</string>
+    <string name="accent_custom_sheet_subtitle">নিজের অ্যাকসেন্ট রঙ তৈরি করুন। এটি পুরো অ্যাপে প্রযোজ্য হয়।</string>
+    <string name="accent_custom_hue">হিউ</string>
+    <string name="accent_custom_saturation">সম্পৃক্তি</string>
+    <string name="accent_custom_brightness">উজ্জ্বলতা</string>
+    <string name="accent_custom_apply">রঙ প্রয়োগ করুন</string>
+    <string name="accent_custom_low_contrast">এই রঙ বর্তমান থিমে পড়তে অসুবিধা হতে পারে।</string>
+    <string name="pro_gate_accent_custom_title">কাস্টম অ্যাকসেন্ট রঙ</string>
+    <string name="pro_gate_accent_custom_desc">নির্ভুল কালার পিকার ও হেক্স কোড দিয়ে যেকোনো রঙ তৈরি করুন।</string>
 </resources>

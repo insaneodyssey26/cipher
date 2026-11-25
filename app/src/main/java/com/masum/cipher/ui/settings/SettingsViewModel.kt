@@ -57,6 +57,7 @@ class SettingsViewModel @Inject constructor(
         when (intent) {
             is SettingsContract.Intent.UpdateTheme -> updateTheme(intent.theme)
             is SettingsContract.Intent.UpdateAccentColor -> updateAccentColor(intent.color)
+            is SettingsContract.Intent.UpdateCustomAccentColor -> updateCustomAccentColor(intent.argb)
             is SettingsContract.Intent.UpdateFontScale -> updateFontScale(intent.scale)
             is SettingsContract.Intent.SetBiometricEnabled -> updateBiometric(intent.enabled)
             is SettingsContract.Intent.SetPrivacyModeEnabled -> updatePrivacyMode(intent.enabled)
@@ -128,6 +129,7 @@ class SettingsViewModel @Inject constructor(
                     copy(
                         theme = settings.theme,
                         accentColor = settings.accentColor,
+                        customAccentColor = settings.customAccentColor,
                         fontScale = settings.fontScale,
                         isBiometricEnabled = settings.isBiometricEnabled,
                         isPrivacyModeEnabled = settings.isPrivacyModeEnabled,
@@ -183,6 +185,11 @@ class SettingsViewModel @Inject constructor(
 
     private fun updateAccentColor(color: com.masum.cipher.core.data.local.pref.AccentColor) {
         viewModelScope.launch { updateSettingsUseCase.accentColor(color) }
+    }
+
+
+    private fun updateCustomAccentColor(argb: Long) {
+        viewModelScope.launch { updateSettingsUseCase.customAccentColor(argb) }
     }
 
 

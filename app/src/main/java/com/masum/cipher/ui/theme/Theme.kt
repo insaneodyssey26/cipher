@@ -14,15 +14,17 @@ import androidx.compose.ui.unit.Density
 fun CipherTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     accentColor: Color = ElectricIndigo,
+    adaptOnAccent: Boolean = false,
     fontScale: Float = 1.0f,
     content: @Composable () -> Unit
 ) {
     val accentSubtle = accentColor.copy(alpha = 0.08f)
+    val onAccent = if (adaptOnAccent) bestContrastingColor(accentColor, Slate50, MidnightDeep) else Slate50
 
     val colorScheme = if (darkTheme) {
         darkColorScheme(
             primary = accentColor,
-            onPrimary = Slate50,
+            onPrimary = onAccent,
             primaryContainer = accentSubtle,
             onPrimaryContainer = accentColor,
             secondary = Slate400,
@@ -54,7 +56,7 @@ fun CipherTheme(
     } else {
         lightColorScheme(
             primary = accentColor,
-            onPrimary = Slate50,
+            onPrimary = onAccent,
             primaryContainer = accentSubtle,
             onPrimaryContainer = accentColor,
             secondary = Slate600,

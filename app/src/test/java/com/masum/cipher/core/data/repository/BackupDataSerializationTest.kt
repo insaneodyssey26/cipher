@@ -312,4 +312,36 @@ class BackupDataSerializationTest {
         assertTrue(!encoded.contains("insightsSpendingOrder"))
         assertTrue(!encoded.contains("insightsHabitsOrder"))
     }
+
+    @Test
+    fun legacyBackupWithoutACustomAccentRestoresWithNull() {
+        val restored = json.decodeFromString(BackupData.serializer(), """{ "transactions": [], "accentColor": "MINT" }""")
+
+        assertEquals("MINT", restored.accentColor)
+        assertEquals(null, restored.customAccentColor)
+    }
+
+    @Test
+    fun aCustomAccentSurvivesABackupRoundTrip() {
+        val data = BackupData(
+            transactions = emptyList(),
+            accentColor = "CUSTOM",
+            customAccentColor = 0xFF12AB34L
+        )
+
+        val restored = json.decodeFromString(
+            BackupData.serializer(),
+            json.encodeToString(BackupData.serializer(), data)
+        )
+
+        assertEquals("CUSTOM", restored.accentColor)
+        assertEquals(0xFF12AB34L, restored.customAccentColor)
+    }
+
+    @Test
+    fun aBackupWithoutACustomAccentAddsNothingToTheJson() {
+        val encoded = json.encodeToString(BackupData.serializer(), BackupData(transactions = emptyList()))
+
+        assertTrue(!encoded.contains("customAccentColor"))
+    }
 }

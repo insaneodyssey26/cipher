@@ -216,6 +216,7 @@ fun SettingsScreen(
     val autoBackupFolderRequiredMessage = stringResource(R.string.auto_backup_folder_required)
     var showPdfUpsellSheet by remember { mutableStateOf(false) }
     var showAccentColorsGateSheet by remember { mutableStateOf(false) }
+    var showCustomAccentSheet by remember { mutableStateOf(false) }
 
     val timeoutOptions = listOf(
         stringResource(R.string.timeout_immediately) to 0L,
@@ -355,7 +356,7 @@ fun SettingsScreen(
                     modifier = Modifier.padding(top = 8.dp, bottom = 18.dp)
                 )
 
-                val accentColor = Color(state.accentColor.colorValue)
+                val accentColor = Color(state.accentColorValue)
                 val searchGradient = Brush.horizontalGradient(
                     colors = listOf(
                         accentColor.copy(alpha = 0.12f),
@@ -706,7 +707,11 @@ Column(modifier = Modifier.fillMaxWidth()) {
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = state.accentColor.colorName,
+                                    text = if (state.accentColor == AccentColor.CUSTOM) {
+                                        stringResource(R.string.accent_custom_name) + " · #" + com.masum.cipher.core.domain.model.AccentPalette.toHex(state.customAccentColor)
+                                    } else {
+                                        state.accentColor.colorName
+                                    },
                                     style = Typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -727,172 +732,31 @@ Column(modifier = Modifier.fillMaxWidth()) {
                         )
                     }
 
-                    val colorScrollState = rememberScrollState()
                     androidx.compose.animation.AnimatedVisibility(
                         visible = isColorPickerExpanded,
                         enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
                         exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 2.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.accent_color_title).uppercase(),
-                                    style = Typography.labelSmall.copy(
-                                        fontFamily = Lato,
-                                        fontWeight = FontWeight.Bold,
-                                        letterSpacing = 1.sp,
-                                        fontSize = 10.sp
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(26.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f))
-                                            .border(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f), CircleShape)
-                                            .clickable {
-                                                view.performVibrate(state.isHapticsEnabled, isLongPress = false)
-                                                coroutineScope.launch {
-                                                    colorScrollState.animateScrollBy(-240f)
-                                                }
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = LucideIcons.ChevronLeft,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
-
-                                    Box(
-                                        modifier = Modifier
-                                            .size(26.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f))
-                                            .border(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f), CircleShape)
-                                            .clickable {
-                                                view.performVibrate(state.isHapticsEnabled, isLongPress = false)
-                                                coroutineScope.launch {
-                                                    colorScrollState.animateScrollBy(240f)
-                                                }
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = LucideIcons.ChevronRight,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                    }
+                        AccentColorPicker(
+                            selected = state.accentColor,
+                            customColor = state.customAccentColor,
+                            isPro = state.isPro,
+                            onPresetSelected = { color ->
+                                if (state.accentColor != color) {
+                                    view.performVibrate(state.isHapticsEnabled, isLongPress = true)
+                                    viewModel.handleIntent(SettingsContract.Intent.UpdateAccentColor(color))
                                 }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .horizontalScroll(colorScrollState)
-                                    .padding(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                AccentColor.entries.forEach { color ->
-                                    val isSelected = state.accentColor == color
-                                    val scale by androidx.compose.animation.core.animateFloatAsState(
-                                        targetValue = if (isSelected) 1.12f else 1f,
-                                        animationSpec = androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 300f),
-                                        label = "color_scale"
-                                    )
-                                    val borderColor by androidx.compose.animation.animateColorAsState(
-                                        targetValue = if (isSelected) Color(color.colorValue) else Color.Transparent,
-                                        animationSpec = androidx.compose.animation.core.tween(300),
-                                        label = "border_color"
-                                    )
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                                        modifier = Modifier
-                                            .clickable(
-                                                interactionSource = remember { MutableInteractionSource() },
-                                                indication = null
-                                            ) {
-                                                if (color.isProOnly && !state.isPro) {
-                                                    view.performVibrate(state.isHapticsEnabled, isLongPress = false)
-                                                    showAccentColorsGateSheet = true
-                                                } else if (!isSelected) {
-                                                    view.performVibrate(state.isHapticsEnabled, isLongPress = true)
-                                                    viewModel.handleIntent(SettingsContract.Intent.UpdateAccentColor(color))
-                                                }
-                                            }
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(46.dp)
-                                                .scale(scale)
-                                                .border(2.5.dp, borderColor, CircleShape)
-                                                .padding(3.5.dp)
-                                                .background(Color(color.colorValue), CircleShape),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            if (isSelected) {
-                                                Icon(
-                                                    imageVector = LucideIcons.Check,
-                                                    contentDescription = null,
-                                                    tint = if (Color(color.colorValue).luminance() > 0.6f) Color.Black else Color.White,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            } else if (color.isProOnly && !state.isPro) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(18.dp)
-                                                        .clip(CircleShape)
-                                                        .background(Color.Black.copy(alpha = 0.55f)),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Icon(
-                                                        imageVector = LucideIcons.Lock,
-                                                        contentDescription = null,
-                                                        tint = Color(0xFFFBBF24),
-                                                        modifier = Modifier.size(10.dp)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        Text(
-                                            text = color.colorName.substringAfter(" "),
-                                            style = Typography.labelSmall.copy(
-                                                fontFamily = Lato,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                                fontSize = 10.5.sp
-                                            ),
-                                            color = if (isSelected) Color(color.colorValue) else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                            },
+                            onCustomClick = {
+                                view.performVibrate(state.isHapticsEnabled, isLongPress = false)
+                                showCustomAccentSheet = true
+                            },
+                            onLockedClick = {
+                                view.performVibrate(state.isHapticsEnabled, isLongPress = false)
+                                showAccentColorsGateSheet = true
+                            },
+                            modifier = Modifier.padding(top = 6.dp)
+                        )
                     }
                 }
             }
@@ -1944,12 +1808,28 @@ Spacer(modifier = Modifier.weight(1f))
         )
     }
 
+    if (showCustomAccentSheet) {
+        CustomAccentSheet(
+            initialColor = state.customAccentColor,
+            isHapticsEnabled = state.isHapticsEnabled,
+            onApply = { argb ->
+                viewModel.handleIntent(SettingsContract.Intent.UpdateCustomAccentColor(argb))
+                showCustomAccentSheet = false
+            },
+            onDismiss = { showCustomAccentSheet = false }
+        )
+    }
+
     if (showAccentColorsGateSheet) {
         ProFeatureGateSheet(
             featureTitle = stringResource(R.string.pro_gate_accent_colors_title),
             featureTagline = stringResource(R.string.pro_gate_accent_colors_desc),
             featureIcon = LucideIcons.Palette,
             perks = listOf(
+                ProFeaturePerk(
+                    title = stringResource(R.string.pro_gate_accent_custom_title),
+                    description = stringResource(R.string.pro_gate_accent_custom_desc)
+                ),
                 ProFeaturePerk(
                     title = "18 Designer Accent Themes",
                     description = "Personalize your dashboard and cards with curated Pantone and luxury tones."

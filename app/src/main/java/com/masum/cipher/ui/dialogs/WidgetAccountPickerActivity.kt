@@ -105,7 +105,7 @@ class WidgetAccountPickerActivity : ComponentActivity() {
                 val settings = userPreferences.settingsFlow.first()
                 isHapticsEnabled = settings.isHapticsEnabled
                 themeMode = settings.theme
-                accentColorHex = settings.accentColor.colorValue
+                accentColorHex = settings.accentColorValue
                 fontScale = settings.fontScale
                 val allAccounts = accountRepository.getAllAccountsFlow().first()
                 accounts = allAccounts

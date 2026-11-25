@@ -59,7 +59,7 @@ class PassbookWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val settings = UserPreferences(context).settingsFlow.first()
-        val accentColor = Color(settings.accentColor.colorValue)
+        val accentColor = Color(settings.accentColorValue)
         val currencySymbol = settings.currencySymbol
         val isPro = settings.isPro
 

@@ -827,4 +827,17 @@
     <string name="insights_arrange_reset">डिफ़ॉल्ट पर रीसेट करें</string>
     <string name="insights_arrange_move_up">%1$s को ऊपर ले जाएँ</string>
     <string name="insights_arrange_move_down">%1$s को नीचे ले जाएँ</string>
+    <string name="accent_group_free">निःशुल्क</string>
+    <string name="accent_group_pro">Pro</string>
+    <string name="accent_custom_name">कस्टम</string>
+    <string name="accent_custom_title">कस्टम रंग</string>
+    <string name="accent_custom_hint">अपनी पसंद का कोई भी रंग चुनें</string>
+    <string name="accent_custom_sheet_subtitle">अपना खुद का एक्सेंट रंग बनाएँ। यह पूरे ऐप में लागू होता है।</string>
+    <string name="accent_custom_hue">रंगत</string>
+    <string name="accent_custom_saturation">संतृप्ति</string>
+    <string name="accent_custom_brightness">चमक</string>
+    <string name="accent_custom_apply">रंग लागू करें</string>
+    <string name="accent_custom_low_contrast">यह रंग मौजूदा थीम पर पढ़ने में कठिन हो सकता है।</string>
+    <string name="pro_gate_accent_custom_title">कस्टम एक्सेंट रंग</string>
+    <string name="pro_gate_accent_custom_desc">सटीक कलर पिकर और हेक्स कोड से कोई भी रंग बनाएँ।</string>
 </resources>

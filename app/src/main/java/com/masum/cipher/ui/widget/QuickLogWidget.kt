@@ -54,7 +54,7 @@ class QuickLogWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val settings = UserPreferences(context).settingsFlow.first()
-        val accentColor = Color(settings.accentColor.colorValue)
+        val accentColor = Color(settings.accentColorValue)
         val isPro = settings.isPro
 
         provideContent {

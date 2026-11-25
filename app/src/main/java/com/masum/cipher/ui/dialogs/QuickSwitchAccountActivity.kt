@@ -98,7 +98,7 @@ class QuickSwitchAccountActivity : ComponentActivity() {
                 val settings = userPreferences.settingsFlow.first()
                 isHapticsEnabled = settings.isHapticsEnabled
                 themeMode = settings.theme
-                accentColorHex = settings.accentColor.colorValue
+                accentColorHex = settings.accentColorValue
                 fontScale = settings.fontScale
                 transaction = transactionRepository.getTransactionById(transactionId)
                 val allAccounts = accountRepository.getAllAccountsFlow().first()

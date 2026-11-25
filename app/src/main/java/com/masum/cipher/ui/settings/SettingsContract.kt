@@ -12,6 +12,7 @@ class SettingsContract {
         data class UpdateTheme(val theme: AppTheme) : Intent()
         data class UpdateFontScale(val scale: Float) : Intent()
         data class UpdateAccentColor(val color: com.masum.cipher.core.data.local.pref.AccentColor) : Intent()
+        data class UpdateCustomAccentColor(val argb: Long) : Intent()
         data class SetBiometricEnabled(val enabled: Boolean) : Intent()
         data class SetAutoLockTimeout(val timeout: Long) : Intent()
         data class SetPrivacyModeEnabled(val enabled: Boolean) : Intent()
@@ -89,6 +90,7 @@ class SettingsContract {
     data class State(
         val theme: AppTheme = AppTheme.SYSTEM,
         val accentColor: com.masum.cipher.core.data.local.pref.AccentColor = com.masum.cipher.core.data.local.pref.AccentColor.INDIGO,
+        val customAccentColor: Long = com.masum.cipher.core.data.local.pref.AccentColor.CUSTOM.colorValue,
         val fontScale: Float = 1.0f,
         val isBiometricEnabled: Boolean = false,
         val autoLockTimeout: Long = 0,
@@ -133,7 +135,10 @@ class SettingsContract {
         val downloadPercent: Int? = null,
         val downloadError: String? = null,
         val message: String? = null
-    ) : UiState
+    ) : UiState {
+        val accentColorValue: Long
+            get() = if (accentColor == com.masum.cipher.core.data.local.pref.AccentColor.CUSTOM) customAccentColor else accentColor.colorValue
+    }
 
     sealed class Effect : UiEffect {
         data class ShowToast(val message: String) : Effect()

@@ -818,4 +818,17 @@
     <string name="insights_arrange_reset">Rétablir par défaut</string>
     <string name="insights_arrange_move_up">Monter %1$s</string>
     <string name="insights_arrange_move_down">Descendre %1$s</string>
+    <string name="accent_group_free">Gratuites</string>
+    <string name="accent_group_pro">Pro</string>
+    <string name="accent_custom_name">Personnalisé</string>
+    <string name="accent_custom_title">Couleur personnalisée</string>
+    <string name="accent_custom_hint">Choisissez la teinte que vous voulez</string>
+    <string name="accent_custom_sheet_subtitle">Créez votre propre couleur d\'accent. Elle s\'applique dans toute l\'application.</string>
+    <string name="accent_custom_hue">Teinte</string>
+    <string name="accent_custom_saturation">Saturation</string>
+    <string name="accent_custom_brightness">Luminosité</string>
+    <string name="accent_custom_apply">Appliquer la couleur</string>
+    <string name="accent_custom_low_contrast">Cette teinte peut être difficile à lire avec le thème actuel.</string>
+    <string name="pro_gate_accent_custom_title">Couleur d\'accent personnalisée</string>
+    <string name="pro_gate_accent_custom_desc">Composez n\'importe quelle teinte avec un sélecteur précis et un code hexadécimal.</string>
 </resources>

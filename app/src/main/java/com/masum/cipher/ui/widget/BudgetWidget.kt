@@ -57,7 +57,7 @@ class BudgetWidget : GlanceAppWidget() {
         val settings = UserPreferences(context).settingsFlow.first()
         val baseBudget = settings.monthlyBudget
         val isDynamic = settings.isDynamicBudgetEnabled
-        val accentColor = Color(settings.accentColor.colorValue)
+        val accentColor = Color(settings.accentColorValue)
         val currencySymbol = settings.currencySymbol
         provideContent {
             val prefs = currentState<Preferences>()

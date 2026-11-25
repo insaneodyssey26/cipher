@@ -1152,7 +1152,7 @@ private fun ThemeSelectionPage(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(9.dp)
                         ) {
-                            AccentColor.entries.chunked(2).forEach { rowColors ->
+                            AccentColor.presets.chunked(2).forEach { rowColors ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(9.dp)

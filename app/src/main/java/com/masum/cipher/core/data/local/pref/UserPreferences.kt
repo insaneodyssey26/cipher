@@ -20,6 +20,7 @@ import javax.inject.Singleton
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_settings")
 
+private const val CACHED_CUSTOM_ACCENT_COLOR = "cached_custom_accent_color"
 private const val CACHED_INSIGHTS_SPENDING_ORDER = "cached_insights_spending_order"
 private const val CACHED_INSIGHTS_HABITS_ORDER = "cached_insights_habits_order"
 
@@ -51,6 +52,14 @@ class UserPreferences @Inject constructor(
 
     fun getCachedLanguageCode(): String {
         return syncPrefs.getString("cached_app_language", "system") ?: "system"
+    }
+
+    fun getCachedCustomAccentColor(): Long =
+        syncPrefs.getLong(CACHED_CUSTOM_ACCENT_COLOR, AccentColor.CUSTOM.colorValue)
+
+    fun getCachedAccentColorValue(): Long {
+        val accent = getCachedAccentColor()
+        return if (accent == AccentColor.CUSTOM) getCachedCustomAccentColor() else accent.colorValue
     }
 
     fun getCachedAccentColor(): AccentColor {
@@ -230,6 +239,7 @@ class UserPreferences @Inject constructor(
             insightsHabitsOrder = decodeSectionOrder(syncPrefs.getString(CACHED_INSIGHTS_HABITS_ORDER, null)),
             lastSeenWhatsNewVersionCode = getCachedLastSeenWhatsNewVersionCode(),
             accentColor = getCachedAccentColor(),
+            customAccentColor = getCachedCustomAccentColor(),
             fontScale = getCachedFontScale(),
             isNavBarCompressed = isCachedNavBarCompressed(),
             isPro = isPro,
@@ -279,6 +289,7 @@ class UserPreferences @Inject constructor(
         val LAST_NOTIFIED_UPDATE_VERSION_CODE = intPreferencesKey("last_notified_update_version_code")
         val IGNORED_SUBSCRIPTIONS = stringSetPreferencesKey("ignored_subscriptions")
         val CATEGORY_BUDGETS = stringPreferencesKey("category_budgets")
+        val CUSTOM_ACCENT_COLOR = longPreferencesKey("custom_accent_color")
         val INSIGHTS_SPENDING_ORDER = stringPreferencesKey("insights_spending_order")
         val INSIGHTS_HABITS_ORDER = stringPreferencesKey("insights_habits_order")
         val IS_DYNAMIC_BUDGET_ENABLED = booleanPreferencesKey("is_dynamic_budget_enabled")
@@ -310,6 +321,7 @@ class UserPreferences @Inject constructor(
         } catch (_: Exception) {
             AccentColor.INDIGO
         }
+        val resolvedCustomAccent = preferences[Keys.CUSTOM_ACCENT_COLOR] ?: AccentColor.CUSTOM.colorValue
         val isNavCompressed = preferences[Keys.NAVBAR_COMPRESSED] ?: false
         val resolvedFontScale = preferences[Keys.APP_FONT_SCALE] ?: 1.0f
 
@@ -328,6 +340,7 @@ class UserPreferences @Inject constructor(
             .putBoolean("cached_currency_has_space", hasSpace)
             .putBoolean("cached_onboarding_completed", hasOnboarded)
             .putString("cached_accent_color", parsedAccentColor.name)
+            .putLong(CACHED_CUSTOM_ACCENT_COLOR, resolvedCustomAccent)
             .putFloat("cached_app_font_scale", resolvedFontScale)
             .putBoolean("cached_navbar_compressed", isNavCompressed)
             .putString("cached_app_theme", parsedTheme.name)
@@ -355,6 +368,7 @@ class UserPreferences @Inject constructor(
             hasCompletedOnboarding = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
             trackedApps = preferences[Keys.TRACKED_APPS] ?: emptySet(),
             accentColor = parsedAccentColor,
+            customAccentColor = resolvedCustomAccent,
             fontScale = resolvedFontScale,
             hasSeenNotificationFeature = preferences[Keys.HAS_SEEN_NOTIFICATION_FEATURE] ?: false,
             lastSeenWhatsNewVersionCode = resolvedLastSeenVersion,
@@ -511,6 +525,17 @@ class UserPreferences @Inject constructor(
 
     suspend fun setTrackedApps(apps: Set<String>) {
         context.dataStore.edit { it[Keys.TRACKED_APPS] = apps }
+    }
+
+    suspend fun setCustomAccentColor(argb: Long, select: Boolean = true) {
+        val opaque = 0xFF000000L or (argb and 0xFFFFFF)
+        val editor = syncPrefs.edit().putLong(CACHED_CUSTOM_ACCENT_COLOR, opaque)
+        if (select) editor.putString("cached_accent_color", AccentColor.CUSTOM.name)
+        editor.apply()
+        context.dataStore.edit {
+            it[Keys.CUSTOM_ACCENT_COLOR] = opaque
+            if (select) it[Keys.ACCENT_COLOR] = AccentColor.CUSTOM.name
+        }
     }
 
     suspend fun setAccentColor(accentColor: AccentColor) {
@@ -935,7 +960,12 @@ enum class AccentColor(val colorValue: Long, val colorName: String, val isProOnl
     OCEAN(0xFF0EA5E9, "Pacific Blue", true),
     FLAME(0xFFFF5722, "Solar Flame", true),
     AURORA(0xFF00B4D8, "Aurora Turquoise", true),
-    GOLD(0xFFEAB308, "Imperial Gold", true)
+    GOLD(0xFFEAB308, "Imperial Gold", true),
+    CUSTOM(0xFF6366F1, "Custom Color", true);
+
+    companion object {
+        val presets: List<AccentColor> = entries.filter { it != CUSTOM }
+    }
 }
 
 enum class AutoBackupFrequency(val label: String) {
@@ -963,6 +993,7 @@ data class UserSettings(
     val hasCompletedOnboarding: Boolean = false,
     val trackedApps: Set<String> = emptySet(),
     val accentColor: AccentColor = AccentColor.INDIGO,
+    val customAccentColor: Long = AccentColor.CUSTOM.colorValue,
     val fontScale: Float = 1.0f,
     val hasSeenNotificationFeature: Boolean = false,
     val lastSeenWhatsNewVersionCode: Int = 0,
@@ -1018,4 +1049,7 @@ data class UserSettings(
 
     val shouldShowMigrationBanner: Boolean
         get() = isLegacyPro && !isMigrationBannerDismissed
+
+    val accentColorValue: Long
+        get() = if (accentColor == AccentColor.CUSTOM) customAccentColor else accentColor.colorValue
 }

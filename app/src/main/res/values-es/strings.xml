@@ -821,4 +821,17 @@
     <string name="insights_arrange_reset">Restablecer</string>
     <string name="insights_arrange_move_up">Subir %1$s</string>
     <string name="insights_arrange_move_down">Bajar %1$s</string>
+    <string name="accent_group_free">Gratis</string>
+    <string name="accent_group_pro">Pro</string>
+    <string name="accent_custom_name">Personalizado</string>
+    <string name="accent_custom_title">Color personalizado</string>
+    <string name="accent_custom_hint">Elige cualquier tono</string>
+    <string name="accent_custom_sheet_subtitle">Crea tu propio color de acento. Se aplica en toda la app.</string>
+    <string name="accent_custom_hue">Tono</string>
+    <string name="accent_custom_saturation">Saturación</string>
+    <string name="accent_custom_brightness">Brillo</string>
+    <string name="accent_custom_apply">Aplicar color</string>
+    <string name="accent_custom_low_contrast">Este tono puede ser difícil de leer con el tema actual.</string>
+    <string name="pro_gate_accent_custom_title">Color de acento personalizado</string>
+    <string name="pro_gate_accent_custom_desc">Mezcla cualquier tono con un selector de color preciso y código hexadecimal.</string>
 </resources>

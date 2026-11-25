@@ -66,6 +66,7 @@ data class BackupData(
     val currencySymbol: String? = null,
     val theme: String? = null,
     val accentColor: String? = null,
+    val customAccentColor: Long? = null,
     val isBiometricEnabled: Boolean? = null,
     val isPrivacyModeEnabled: Boolean? = null,
     val isHapticsEnabled: Boolean? = null,
@@ -139,6 +140,7 @@ class BackupRepository @Inject constructor(
                 currencySymbol = settings.currencySymbol,
                 theme = settings.theme.name,
                 accentColor = settings.accentColor.name,
+                customAccentColor = settings.customAccentColor.takeIf { it != com.masum.cipher.core.data.local.pref.AccentColor.CUSTOM.colorValue },
                 isBiometricEnabled = settings.isBiometricEnabled,
                 isPrivacyModeEnabled = settings.isPrivacyModeEnabled,
                 isHapticsEnabled = settings.isHapticsEnabled,
@@ -249,6 +251,7 @@ class BackupRepository @Inject constructor(
                 data.theme?.let {
                     try { userPreferences.setTheme(com.masum.cipher.core.data.local.pref.AppTheme.valueOf(it)) } catch (_: Exception) {}
                 }
+                data.customAccentColor?.let { userPreferences.setCustomAccentColor(it, select = false) }
                 data.accentColor?.let {
                     try { userPreferences.setAccentColor(com.masum.cipher.core.data.local.pref.AccentColor.valueOf(it)) } catch (_: Exception) {}
                 }

@@ -27,6 +27,10 @@ class UpdateSettingsUseCase @Inject constructor(
         userPreferences.setAccentColor(color)
         transactionRepository.refreshWidgets()
     }
+    suspend fun customAccentColor(argb: Long) {
+        userPreferences.setCustomAccentColor(argb)
+        transactionRepository.refreshWidgets()
+    }
     suspend fun biometric(enabled: Boolean) = userPreferences.setBiometricEnabled(enabled)
     suspend fun privacyMode(enabled: Boolean) = userPreferences.setPrivacyModeEnabled(enabled)
     suspend fun haptics(enabled: Boolean) = userPreferences.setHapticsEnabled(enabled)
